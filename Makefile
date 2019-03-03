@@ -1,12 +1,11 @@
 ################################################
 # Two changes are needed.
-# (1) Add your player's .o file to CONTESTOBJECTS
-# (2) Add your player's dependencies right after SmarterPlayer's.
+# (1) Add your player's .o file to CONTESTOBJECTS.
+# (2) Add your player's dependencies.
 ################################################
 
 CXXFLAGS = -g -Wall -Og -std=c++11
 CXX = g++
-
 
 ################################################
 # Change 1:
@@ -58,17 +57,15 @@ conio.cpp: conio.h
 AIContest.o: AIContest.cpp
 AIContest.cpp: AIContest.h Message.h defines.h
 
-# Players here
+################################################
+# Change 2:
+# Add your player dependency information below
+################################################
 SmarterPlayer.o: SmarterPlayer.cpp Message.cpp
 SmarterPlayer.cpp: SmarterPlayer.h defines.h PlayerV2.h conio.cpp
 
 DumbPlayerV2.o: DumbPlayerV2.cpp Message.cpp
 DumbPlayerV2.cpp: DumbPlayerV2.h defines.h PlayerV2.h conio.cpp
-################################################
-# Change 2:
-# Add your player dependency information below
-################################################
-
 
 # CleanPlayerV2.o and other provided binaries are only available as a linkable Linux binary, not as source code.
 CleanPlayerV2.o: 
@@ -81,4 +78,3 @@ SemiSmartPlayerV2.o:
 	tar -xvf binaries.tar SemiSmartPlayerV2.o
 BoardV3.o:
 	tar -xvf binaries.tar BoardV3.o
-

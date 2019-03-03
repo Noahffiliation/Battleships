@@ -29,7 +29,7 @@ using namespace conio;
  * before any of the rounds happen. The constructor does not get called 
  * before rounds; newRound() gets called before every round.
  */
-SmarterPlayer::SmarterPlayer( int boardSize )
+SmarterPlayer::SmarterPlayer(int boardSize)
     :PlayerV2(boardSize)
 {
     // Could do any initialization of inter-round data structures here.
@@ -40,20 +40,21 @@ SmarterPlayer::SmarterPlayer( int boardSize )
  * If your code does anything that requires cleanup when the object is
  * destroyed, do it here in the destructor.
  */
-SmarterPlayer::~SmarterPlayer( ) {}
+SmarterPlayer::~SmarterPlayer() {}
 
 /*
  * Private internal function that initializes a MAX_BOARD_SIZE 2D array of char to water.
  */
 void SmarterPlayer::initializeBoard() {
     for (int row = 0; row < boardSize; row++) {
-	for (int col = 0; col < boardSize; col++) {
-	    this->board[row][col] = WATER;
-	    this->shipBoard[row][col] = WATER;
-	    this->shotMatrix[row][col] = 0;
-	}
+        for (int col = 0; col < boardSize; col++) {
+            this->board[row][col] = WATER;
+            this->shipBoard[row][col] = WATER;
+            this->shotMatrix[row][col] = 0;
+        }
     }
 }
+
 /**
  * @brief Determines if a given location has neighbors
  * @param row Row location on board
@@ -82,11 +83,11 @@ int SmarterPlayer::getNeighbors(int row, int col){
  */
 bool SmarterPlayer::canPlaceShip(int shipSize, Direction dir, int row, int col) {
     if (dir == Horizontal) {
-	for(int i = 0; i < shipSize; ++i) if (shipBoard[row][col+i] != WATER || getNeighbors(row, col+i) > 1) return false;
-	return true;
+	    for(int i = 0; i < shipSize; ++i) if (shipBoard[row][col+i] != WATER || getNeighbors(row, col+i) > 1) return false;
+	    return true;
     } else {
-	for(int i = 0; i < shipSize; ++i) if (shipBoard[row+i][col] != WATER || getNeighbors(row+i, col) > 1) return false;
-	return true;
+        for(int i = 0; i < shipSize; ++i) if (shipBoard[row+i][col] != WATER || getNeighbors(row+i, col) > 1) return false;
+        return true;
     }
 }
 
@@ -98,8 +99,8 @@ bool SmarterPlayer::canPlaceShip(int shipSize, Direction dir, int row, int col) 
  * @param col Column location on board
  */
 void SmarterPlayer::placeOnBoard(int length, Direction dir, int row, int col) {
-    if (dir == Horizontal) for(int i = 0; i < length; ++i) shipBoard[row][col+i] = SHIP;
-    else for(int i = 0; i < length; ++i) shipBoard[row+i][col] = SHIP;
+    if (dir == Horizontal) for (int i = 0; i < length; ++i) shipBoard[row][col+i] = SHIP;
+    else for (int i = 0; i < length; ++i) shipBoard[row+i][col] = SHIP;
 }
 
 /**
@@ -131,14 +132,14 @@ bool SmarterPlayer::validShot(int row, int col) {
  * @param row Row location on the board
  * @param col Column location on the board
  */
-int* SmarterPlayer::searchAndDestroy(int row, int col) {
-    int* loc = new int[2];
+int *SmarterPlayer::searchAndDestroy(int row, int col) {
+    int *loc = new int[2];
     for (int i = 1; i <= 1; i++) {
-        if (validShot(row-i, col)) {
+        if (validShot(row - i, col)) {
             char spot = board[row-i][col];
             if (spot == MISS || spot == DUPLICATE_SHOT || spot == KILL || spot == HIT) break;
             if (spot == WATER) {
-                loc[0] = row-i;
+                loc[0] = row - i;
                 loc[1] = col;
                 return loc;
             }
@@ -147,10 +148,10 @@ int* SmarterPlayer::searchAndDestroy(int row, int col) {
 
     for (int i = 1; i <= 1; i++) {
         if (validShot(row+i, col)) {
-            char spot = board[row+i][col];
+            char spot = board[row + i][col];
             if (spot == MISS || spot == DUPLICATE_SHOT || spot == KILL || spot == HIT) break;
             if (spot == WATER) {
-                loc[0] = row+i;
+                loc[0] = row + i;
                 loc[1] = col;
                 return loc;
             }
@@ -159,23 +160,23 @@ int* SmarterPlayer::searchAndDestroy(int row, int col) {
 
     for (int i = 1; i <= 1; i++) {
         if (validShot(row, col-i)) {
-            char spot = board[row][col-i];
+            char spot = board[row][col - i];
             if (spot == MISS || spot == DUPLICATE_SHOT || spot == KILL || spot == HIT) break;
             if (spot == WATER) {
                 loc[0] = row;
-                loc[1] = col-i;
+                loc[1] = col - i;
                 return loc;
             }
         }
     }
 
     for (int i = 1; i <= 1; i++) {
-        if (validShot(row, col+i)) {
-            char spot = board[row][col+i];
+        if (validShot(row, col + i)) {
+            char spot = board[row][col + i];
             if (spot == MISS || spot == DUPLICATE_SHOT || spot == KILL || spot == HIT) break;
             if (spot == WATER) {
                 loc[0] = row;
-                loc[1] = col+i;
+                loc[1] = col + i;
                 return loc;
             }
         }
@@ -196,17 +197,17 @@ int* SmarterPlayer::searchAndDestroy(int row, int col) {
  * Message constructor.
  */
 Message SmarterPlayer::getMove() {
-    int * loc;
+    int *loc;
     for (int row = 0; row < boardSize; row++) {
         for (int col = 0; col < boardSize; col++) {
-	    if (board[row][col] == HIT) {
-		loc = searchAndDestroy(row, col);
-		if (loc[0] != -1) {
-		    Message outbound(SHOT, loc[0], loc[1], "Bang!", None, 1);
-		    return outbound;
-		}
-	    }
-	}
+            if (board[row][col] == HIT) {
+                loc = searchAndDestroy(row, col);
+                if (loc[0] != -1) {
+                    Message outbound(SHOT, loc[0], loc[1], "Bang!", None, 1);
+                    return outbound;
+                }
+            }
+        }
     }
 
     int row = 0;
@@ -214,25 +215,25 @@ Message SmarterPlayer::getMove() {
     int startCol = 0;
 
     while (row < boardSize && col < boardSize) {
-	if (board[row][col] == WATER) {
-	    if (row >= 0 && row < boardSize && col >= 0 && col < boardSize){
-		Message result(SHOT, row, col, "Bang", None, 1);
-		return result;
-	    }
-	}
-	col += 3;
-	if (col >= boardSize) {
-	    row += 2;
-	    startCol++;
-	    if (startCol > 2) startCol = 0;
-	    col = startCol;
-	}
-	if (row > boardSize) break;
+        if (board[row][col] == WATER) {
+            if (row >= 0 && row < boardSize && col >= 0 && col < boardSize) {
+                Message result(SHOT, row, col, "Bang", None, 1);
+                return result;
+            }
+        }
+        col += 3;
+        if (col >= boardSize) {
+            row += 2;
+            startCol++;
+            if (startCol > 2) startCol = 0;
+            col = startCol;
+        }
+        if (row > boardSize) break;
     }
 
     for (int r = 0; r < boardSize; r++ ) {
         for (int c = 0; c < boardSize; c++) {
-            if (checkShot(r, c)){
+            if (checkShot(r, c)) {
                Message result(SHOT, r, c, "Bang", None, 1);
                return result;
             }
@@ -277,24 +278,24 @@ Message SmarterPlayer::placeShip(int length) {
     snprintf(shipName, sizeof shipName, "Ship%d", numShipsPlaced);
     
     while (true) { //random ship placement
-	int row;
+        int row;
         int col;
-	Direction dir = Direction(rand() % 2 + 1);
-	
-	if (dir == Horizontal) {
-	    row = rand() % boardSize;
-	    col = rand() % ((boardSize - length) + 1);
-	} else {
-            row = rand() % ((boardSize - length) + 1);
-            col = rand() % boardSize;
+        Direction dir = Direction(rand() % 2 + 1);
+        
+        if (dir == Horizontal) {
+            row = rand() % boardSize;
+            col = rand() % ((boardSize - length) + 1);
+        } else {
+                row = rand() % ((boardSize - length) + 1);
+                col = rand() % boardSize;
         }
 
-	if (canPlaceShip(length, dir, row, col)) {
-	    placeOnBoard(length, dir, row, col);
-	    Message response(PLACE_SHIP, row, col, shipName, dir, length);
-	    numShipsPlaced++;
-	    return response;
-	}
+        if (canPlaceShip(length, dir, row, col)) {
+            placeOnBoard(length, dir, row, col);
+            Message response(PLACE_SHIP, row, col, shipName, dir, length);
+            numShipsPlaced++;
+            return response;
+        }
     }
 }
 
@@ -304,21 +305,21 @@ Message SmarterPlayer::placeShip(int length) {
  */
 void SmarterPlayer::update(Message msg) {
     switch (msg.getMessageType()) {
-	case HIT:
-	case KILL:
-	case MISS:
-	    board[msg.getRow()][msg.getCol()] = msg.getMessageType();
-	    break;
-	case WIN:
-	    break;
-	case LOSE:
-	    break;
-	case TIE:
-	    break;
-	case OPPONENT_SHOT:
-	    // TODO: get rid of the cout, but replace in your AI with code that does something
-	    // useful with the information about where the opponent is shooting.
-	    //cout << gotoRowCol(20, 30) << "DumbPl: opponent shot at "<< msg.getRow() << ", " << msg.getCol() << flush;
-	    break;
+        case HIT:
+        case KILL:
+        case MISS:
+            board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+            break;
+        case WIN:
+            break;
+        case LOSE:
+            break;
+        case TIE:
+            break;
+        case OPPONENT_SHOT:
+            // TODO: get rid of the cout, but replace in your AI with code that does something
+            // useful with the information about where the opponent is shooting.
+            //cout << gotoRowCol(20, 30) << "DumbPl: opponent shot at "<< msg.getRow() << ", " << msg.getCol() << flush;
+            break;
     }
 }

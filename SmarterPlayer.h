@@ -6,7 +6,7 @@
  *
  */
 
-#ifndef SmarterPlayer_H		// Double inclusion protection
+#ifndef SmarterPlayer_H
 #define SmarterPlayer_H
 
 using namespace std;
@@ -14,8 +14,6 @@ using namespace std;
 #include "PlayerV2.h"
 #include "Message.h"
 #include "defines.h"
-
-// SmarterPlayer inherits from/extends PlayerV2
 
 class SmarterPlayer: public PlayerV2 {
     public:
@@ -32,14 +30,14 @@ class SmarterPlayer: public PlayerV2 {
 	
     private:
 	void initializeBoard();
-        int lastRow;
-        int lastCol;
-	int numShipsPlaced;
+	bool canPlaceShip(int length, Direction dir, int row, int col);
+	void placeOnBoard(int length, Direction dir, int row, int col);
         char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	char shipBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	int shotMatrix[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-	bool canPlaceShip(int length, Direction dir, int row, int col);
-	void placeOnBoard(int length, Direction dir, int row, int col);
+        int lastRow;
+        int lastCol;
+	int numShipsPlaced;
 };
 
 #endif
