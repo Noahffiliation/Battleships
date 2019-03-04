@@ -62,14 +62,14 @@ void SmarterPlayer::initializeBoard() {
  */
 int SmarterPlayer::getNeighbors(int row, int col){
     int sum = 0;
-    if (validShot(row-1, col) && (shipBoard[row-1][col] != WATER)) sum++;
-    if (validShot(row+1, col) && (shipBoard[row+1][col] != WATER)) sum++;
-    if (validShot(row, col-1) && (shipBoard[row][col-1] != WATER)) sum++;
-    if (validShot(row, col+1) && (shipBoard[row][col+1] != WATER)) sum++;
-    if (validShot(row-1, col+1) && (shipBoard[row-1][col+1] != WATER)) sum++;
-    if (validShot(row+1, col-1) && (shipBoard[row+1][col-1] != WATER)) sum++;
-    if (validShot(row-1, col-1) && (shipBoard[row-1][col-1] != WATER)) sum++;
-    if (validShot(row+1, col+1) && (shipBoard[row+1][col+1] != WATER)) sum++;
+    if (validShot(row - 1, col) && (shipBoard[row - 1][col] != WATER)) sum++;
+    if (validShot(row + 1, col) && (shipBoard[row + 1][col] != WATER)) sum++;
+    if (validShot(row, col - 1) && (shipBoard[row][col - 1] != WATER)) sum++;
+    if (validShot(row, col + 1) && (shipBoard[row][col + 1] != WATER)) sum++;
+    if (validShot(row - 1, col + 1) && (shipBoard[row - 1][col + 1] != WATER)) sum++;
+    if (validShot(row + 1, col - 1) && (shipBoard[row + 1][col - 1] != WATER)) sum++;
+    if (validShot(row - 1, col - 1) && (shipBoard[row - 1][col - 1] != WATER)) sum++;
+    if (validShot(row + 1, col + 1) && (shipBoard[row + 1][col + 1] != WATER)) sum++;
     
     return sum;
 }
@@ -83,10 +83,10 @@ int SmarterPlayer::getNeighbors(int row, int col){
  */
 bool SmarterPlayer::canPlaceShip(int shipSize, Direction dir, int row, int col) {
     if (dir == Horizontal) {
-	    for(int i = 0; i < shipSize; ++i) if (shipBoard[row][col+i] != WATER || getNeighbors(row, col+i) > 1) return false;
+	    for (int i = 0; i < shipSize; ++i) if (shipBoard[row][col+i] != WATER || getNeighbors(row, col + i) > 1) return false;
 	    return true;
     } else {
-        for(int i = 0; i < shipSize; ++i) if (shipBoard[row+i][col] != WATER || getNeighbors(row+i, col) > 1) return false;
+        for (int i = 0; i < shipSize; ++i) if (shipBoard[row + i][col] != WATER || getNeighbors(row + i, col) > 1) return false;
         return true;
     }
 }
