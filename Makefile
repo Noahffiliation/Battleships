@@ -4,6 +4,8 @@ CXX = g++
 # ADD NEW PLAYER.o HERE
 CONTESTOBJECTS = AIContest.o Board.o Message.o Player.o conio.o contest.o SmarterPlayer.o DumbPlayer.o
 
+BONUSOBJECTS = CleanPlayerV2.o GamblerPlayerV2.o LearningGambler.o SemiSmartPlayerV2.o
+
 HOST_NAME := $(shell hostname)
 HOST_OK := no
 
