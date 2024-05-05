@@ -30,7 +30,7 @@ using namespace conio;
  * UPDATE NEW PLAYER INFORMATION HERE
  */
 const int NumPlayers = 2;
-string playerNames[NumPlayers] = { 
+string playerNames[NumPlayers] = {
     "Smarter Player",
     "Dumb Player",
 };
@@ -59,7 +59,7 @@ int statsGamesCounted[NumPlayers];
 
 int main() {
     // Adjust based on the number of players!
-    // Initialize various win statistics 
+    // Initialize various win statistics
     for (int i = 0; i < NumPlayers; i++) {
         statsShotsTaken[i] = 0;
         statsGamesCounted[i] = 0;
@@ -88,6 +88,12 @@ int main() {
     // Find out how many times to test the AI.
     cout << "How many times should I test the game AI? ";
     cin >> totalGames;
+    std::string sanitized;
+    for (char c : totalGames) {
+        if (isalnum(c) || c == ' ') {
+            sanitized += c;
+        }
+    }
 
     cout << "The first game of each AI match is played at the specified speed," << endl << "all subsequent games are done without visual display." << endl << "How many seconds per move? (E.g., 1, 0.5, 1.3) : ";
     cin >> secondsPerMove;
@@ -185,8 +191,8 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
     delete player2;
 
     cout << endl << "********************" << endl;
-    cout << playerNames[player1Id] << ": " << setTextStyle(NEGATIVE_IMAGE) << "wins=" << matchWins[0] << resetAll() << " losses=" << totalGames-matchWins[0]-player1Ties << " ties=" << player1Ties << " (cumulative avg. shots/game = " << (statsGamesCounted[player1Id]==0 ? 0.0 : (float)statsShotsTaken[player1Id]/(float)statsGamesCounted[player1Id]) << ")" << endl;
-    cout << playerNames[player2Id] << ": " << setTextStyle(NEGATIVE_IMAGE) << "wins=" << matchWins[1] << resetAll() << " losses=" << totalGames-matchWins[1]-player2Ties << " ties=" << player2Ties << " (cumulative avg. shots/game = " << (statsGamesCounted[player2Id]==0 ? 0.0 : (float)statsShotsTaken[player2Id]/(float)statsGamesCounted[player2Id]) << ")" << endl;
+    cout << playerNames[player1Id] << ": " << setTextStyle(NEGATIVE_IMAGE) << "wins=" << matchWins[0] << resetAll() << " losses=" << sanitized-matchWins[0]-player1Ties << " ties=" << player1Ties << " (cumulative avg. shots/game = " << (statsGamesCounted[player1Id]==0 ? 0.0 : (float)statsShotsTaken[player1Id]/(float)statsGamesCounted[player1Id]) << ")" << endl;
+    cout << playerNames[player2Id] << ": " << setTextStyle(NEGATIVE_IMAGE) << "wins=" << matchWins[1] << resetAll() << " losses=" << sanitized-matchWins[1]-player2Ties << " ties=" << player2Ties << " (cumulative avg. shots/game = " << (statsGamesCounted[player2Id]==0 ? 0.0 : (float)statsShotsTaken[player2Id]/(float)statsGamesCounted[player2Id]) << ")" << endl;
     cout << "********************" << endl;
 
     cout << setTextStyle(NEGATIVE_IMAGE);

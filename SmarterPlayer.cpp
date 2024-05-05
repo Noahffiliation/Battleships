@@ -29,7 +29,7 @@ int SmarterPlayer::getNeighbors(int row, int col){
     if (validShot(row + 1, col - 1) && (shipBoard[row + 1][col - 1] != WATER)) sum++;
     if (validShot(row - 1, col - 1) && (shipBoard[row - 1][col - 1] != WATER)) sum++;
     if (validShot(row + 1, col + 1) && (shipBoard[row + 1][col + 1] != WATER)) sum++;
-    
+
     return sum;
 }
 
@@ -120,6 +120,12 @@ int* SmarterPlayer::searchAndDestroy(int row, int col) {
     loc[0] = -1;
     loc[1] = -1;
 
+    if (loc[0] == -1 && loc[1] == -1) {
+        // No valid location found, release memory
+        delete[] loc;
+        return nullptr;
+    }
+
     return loc;
 }
 
@@ -169,7 +175,7 @@ Message SmarterPlayer::getMove() {
 
     Message result(SHOT, -1, -1, "Bang", None, 1);
     return result;
-}    
+}
 
 void SmarterPlayer::newRound() {
     this->lastRow = 0;
@@ -182,12 +188,12 @@ Message SmarterPlayer::placeShip(int length) {
     char shipName[10];
     // Create ship names each time called: Ship0, Ship1, Ship2, ...
     snprintf(shipName, sizeof shipName, "Ship%d", numShipsPlaced);
-    
+
     while (true) { //random ship placement
         int row;
         int col;
         Direction dir = Direction(rand() % 2 + 1);
-        
+
         if (dir == Horizontal) {
             row = rand() % boardSize;
             col = rand() % ((boardSize - length) + 1);
