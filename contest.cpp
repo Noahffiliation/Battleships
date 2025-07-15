@@ -23,6 +23,7 @@ int comparePlayers(const void * a, const void * b);
 using namespace std;
 using namespace conio;
 
+// INCLUDE NEW PLAYER HEADERS HERE
 #include "SmarterPlayer.h"
 #include "DumbPlayer.h"
 
