@@ -32,6 +32,8 @@ jobs:
           ./tests
           lcov --capture --directory . --output-file coverage.info
           lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          # Convert absolute paths to relative paths for SonarQube
+          sed -i "s|/home/runner/work/Battleships/Battleships/||g" coverage.info
           echo "Coverage file generated. Contents preview:"
           head -20 coverage.info
           echo "Coverage summary:"
