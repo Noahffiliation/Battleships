@@ -23,9 +23,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lcov
       - name: Build with Coverage
         run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make clean
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make contest CXXFLAGS="-g -Wall -Og -std=c++11 --coverage" LDFLAGS="--coverage"
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make tests CXXFLAGS="-g -Wall -Og -std=c++11 --coverage" LDFLAGS="--coverage"
+          make clean
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make contest tests CXXFLAGS="-g -Wall -Og -std=c++11 --coverage" LDFLAGS="--coverage"
       - name: Run Tests and Generate Coverage
         run: |
           echo "10 10 0" | ./contest
