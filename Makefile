@@ -59,6 +59,7 @@ DumbPlayer.o: DumbPlayer.cpp Message.cpp
 DumbPlayer.cpp: DumbPlayer.h defines.h Player.h conio.cpp
 
 Board.o: Board.cpp
-Board.cpp: board.h
+Board.cpp: Board.h
 
 # ADD NEW PLAYER DEPENDENCIES HERE
+
