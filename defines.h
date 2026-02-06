@@ -12,7 +12,7 @@ const char SHOT = '@';
 const char MISS = '*';
 const char DUPLICATE_SHOT = '!';
 const char HIT = 'X';
-const char KILL = 'K';
+const char SUNK = 'K';
 const char OPPONENT_SHOT = 'O';
 const char SHIP = 'S';
 const char WATER = '~';
@@ -30,6 +30,6 @@ const int MAX_BOARD_SIZE = 10;
 const int MAX_SHIP_SIZE = 5;
 const int MIN_SHIP_SIZE = 3;
 
-enum Direction {None = 0, Horizontal = 1, Vertical = 2};
+enum Direction { None = 0, Horizontal = 1, Vertical = 2 };
 
 #endif
