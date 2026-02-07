@@ -2,10 +2,9 @@
 #include "Random.h"
 #include <cstdio>
 #include <cstdlib>
+#include <utility>
 
 SmarterPlayer::SmarterPlayer(int boardSize) : Player(boardSize) {}
-
-SmarterPlayer::~SmarterPlayer() {}
 
 void SmarterPlayer::initializeBoard() {
   Player::initializeBoard();
@@ -85,7 +84,7 @@ bool SmarterPlayer::validShot(int row, int col) {
   return true;
 }
 
-int *SmarterPlayer::searchAndDestroy(int row, int col) {
+std::pair<int, int> SmarterPlayer::searchAndDestroy(int row, int col) {
   int targetRow = -1;
   int targetCol = -1;
 
@@ -107,24 +106,20 @@ int *SmarterPlayer::searchAndDestroy(int row, int col) {
   }
 
   if (targetRow != -1) {
-    int *loc = new int[2];
-    loc[0] = targetRow;
-    loc[1] = targetCol;
-    return loc;
+    return std::make_pair(targetRow, targetCol);
   }
 
-  return nullptr;
+  return std::make_pair(-1, -1);
 }
 
 Message SmarterPlayer::getMove() {
-  int *loc;
+  std::pair<int, int> loc;
   for (int row = 0; row < boardSize; row++) {
     for (int col = 0; col < boardSize; col++) {
       if (board[row][col] == HIT) {
         loc = searchAndDestroy(row, col);
-        if (loc != nullptr) {
-          Message outbound(SHOT, loc[0], loc[1], "Bang!", None, 1);
-          delete[] loc;
+        if (loc.first != -1) {
+          Message outbound(SHOT, loc.first, loc.second, "Bang!", None, 1);
           return outbound;
         }
       }

@@ -25,7 +25,7 @@ class AIContest {
 public:
   AIContest(Player *player1, const string &player1Name, Player *player2,
             const string &player2Name, int boardSize, bool silent);
-  ~AIContest();
+  ~AIContest() = default;
   void play(float secondsDelay, int &totalMoves, bool &player1Won,
             bool &player2Won);
 

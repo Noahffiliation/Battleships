@@ -34,8 +34,6 @@ AIContest::AIContest(Player *player1, const string &player1Name,
   }
 }
 
-AIContest::~AIContest() {}
-
 // Places the ships
 bool AIContest::placeShips(Player *player, Board *board) const {
   for (int i = 0; i < numShips; i++) {
@@ -108,14 +106,12 @@ void AIContest::showBoard(Board *board, bool ownerView,
 
       if (ch >= 'a' && ch <= 'k') {
         cout << setTextStyle(NEGATIVE_IMAGE) << ch << resetAll() << flush;
+      } else if (highlightOptions.highlightRecent &&
+                 highlightOptions.row == row && highlightOptions.col == col) {
+        cout << setTextStyle(NEGATIVE_IMAGE) << ch
+             << setTextStyle(NEGATIVE_IMAGE) << resetAll() << flush;
       } else {
-        if (highlightOptions.highlightRecent && highlightOptions.row == row &&
-            highlightOptions.col == col) {
-          cout << setTextStyle(NEGATIVE_IMAGE) << ch
-               << setTextStyle(NEGATIVE_IMAGE) << resetAll() << flush;
-        } else {
-          cout << ch << resetAll() << flush;
-        }
+        cout << ch << resetAll() << flush;
       }
     }
     cout << resetAll() << flush;

@@ -5,11 +5,10 @@
 #include "Player.h"
 #include "defines.h"
 
-
 class DumbPlayer : public Player {
 public:
   DumbPlayer(int boardSize);
-  ~DumbPlayer();
+  ~DumbPlayer() = default;
   Message placeShip(int length);
   Message getMove();
 };

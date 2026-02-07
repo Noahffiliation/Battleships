@@ -10,8 +10,6 @@ using namespace conio;
 
 DumbPlayer::DumbPlayer(int boardSize) : Player(boardSize) {}
 
-DumbPlayer::~DumbPlayer() {}
-
 Message DumbPlayer::getMove() {
   lastCol++;
   if (lastCol >= boardSize) {

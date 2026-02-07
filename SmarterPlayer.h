@@ -4,19 +4,19 @@
 #include "Message.h"
 #include "Player.h"
 #include "defines.h"
-
+#include <utility>
 
 class SmarterPlayer : public Player {
 public:
   SmarterPlayer(int boardSize);
-  ~SmarterPlayer();
+  ~SmarterPlayer() = default;
   void newRound();
   int getNeighbors(int row, int col);
   bool checkShot(int row, int col);
   bool validShot(int row, int col);
   Message placeShip(int length);
   Message getMove();
-  int *searchAndDestroy(int lastRow, int lastCol);
+  std::pair<int, int> searchAndDestroy(int lastRow, int lastCol);
 
 private:
   void initializeBoard();
