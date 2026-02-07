@@ -19,22 +19,20 @@ void SmarterPlayer::initializeBoard() {
 
 int SmarterPlayer::getNeighbors(int row, int col) {
   int sum = 0;
-  if (validShot(row - 1, col) && (shipBoard[row - 1][col] != WATER))
-    sum++;
-  if (validShot(row + 1, col) && (shipBoard[row + 1][col] != WATER))
-    sum++;
-  if (validShot(row, col - 1) && (shipBoard[row][col - 1] != WATER))
-    sum++;
-  if (validShot(row, col + 1) && (shipBoard[row][col + 1] != WATER))
-    sum++;
-  if (validShot(row - 1, col + 1) && (shipBoard[row - 1][col + 1] != WATER))
-    sum++;
-  if (validShot(row + 1, col - 1) && (shipBoard[row + 1][col - 1] != WATER))
-    sum++;
-  if (validShot(row - 1, col - 1) && (shipBoard[row - 1][col - 1] != WATER))
-    sum++;
-  if (validShot(row + 1, col + 1) && (shipBoard[row + 1][col + 1] != WATER))
-    sum++;
+  // Directions for 8 neighbors (horizontal, vertical, diagonal)
+  int dr[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+  int dc[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+  for (int i = 0; i < 8; i++) {
+    int r = row + dr[i];
+    int c = col + dc[i];
+    // Explicit bounds check before accessing shipBoard
+    if (r >= 0 && r < MAX_BOARD_SIZE && c >= 0 && c < MAX_BOARD_SIZE) {
+      if (validShot(r, c) && shipBoard[r][c] != WATER) {
+        sum++;
+      }
+    }
+  }
 
   return sum;
 }
