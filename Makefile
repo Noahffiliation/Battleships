@@ -37,7 +37,7 @@ duplication:
 	@echo "Cppcheck report generated in 'cppcheck-report.xml'"
 
 clean:
-	rm -f contest $(CONTESTOBJECTS) *.gcda *.gcno coverage.info
+	rm -f contest tests tests.o $(CONTESTOBJECTS) *.gcda *.gcno coverage.info
 	rm -rf coverage_report
 
 contest.o: contest.cpp

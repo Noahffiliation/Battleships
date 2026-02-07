@@ -11,12 +11,10 @@
 #include <iostream>
 #include <unistd.h>
 
-
 #include "AIContest.h"
 #include "Board.h"
 #include "Player.h"
 #include "conio.h"
-
 
 Player *getPlayer(int playerId, int boardSize);
 void playMatch(int player1Id, int player2Id, bool showMoves);
@@ -28,7 +26,6 @@ using namespace conio;
 // INCLUDE NEW PLAYER HEADERS HERE
 #include "DumbPlayer.h"
 #include "SmarterPlayer.h"
-
 
 /**
  * UPDATE NEW PLAYER INFORMATION HERE
@@ -157,6 +154,12 @@ int main() {
 }
 
 void playMatch(int player1Id, int player2Id, bool showMoves) {
+  if (player1Id < 0 || player1Id >= NumPlayers || player2Id < 0 ||
+      player2Id >= NumPlayers) {
+    cerr << "Invalid player IDs passed to playMatch: " << player1Id << ", "
+         << player2Id << endl;
+    return;
+  }
   Player *player1, *player2;
   AIContest *game;
   int matchWins[2] = {0, 0};

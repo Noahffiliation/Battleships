@@ -64,7 +64,8 @@ void SmarterPlayer::placeOnBoard(int length, Direction dir, int row, int col) {
 }
 
 bool SmarterPlayer::checkShot(int row, int col) {
-  if (row < 0 || row >= boardSize || col < 0 || col >= boardSize)
+  if (row < 0 || row >= boardSize || row >= MAX_BOARD_SIZE || col < 0 ||
+      col >= boardSize || col >= MAX_BOARD_SIZE)
     return false;
   switch (board[row][col]) {
   case DUPLICATE_SHOT:

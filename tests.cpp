@@ -73,9 +73,42 @@ void testAIContest() {
   std::cout << "AIContest tests passed!" << std::endl;
 }
 
+#include "SmarterPlayer.h"
+
+void testSmarterPlayer() {
+  std::cout << "Testing SmarterPlayer..." << std::endl;
+  SmarterPlayer p(10);
+
+  // Test checkShot bounds
+  assert(!p.checkShot(-1, 0));
+  assert(!p.checkShot(0, -1));
+  assert(!p.checkShot(10, 0));
+  assert(!p.checkShot(0, 10));
+  assert(!p.checkShot(MAX_BOARD_SIZE, 0));
+  assert(!p.checkShot(0, MAX_BOARD_SIZE));
+
+  // Test inside bounds (assuming empty board is water, but checkShot filters
+  // hits/misses etc) Initially board is water, so checkShot should return true
+  // (valid target) if it checks for non-shot spots? Let's check logic:
+  // checkShot returns false if board[row][col] is HIT, SUNK, MISS,
+  // DUPLICATE_SHOT. It returns true otherwise (WATER, SHIP).
+  // p.initializeBoard() sets everything to WATER.
+  // Warning: Player constructor calls newRound check calls initializeBoard.
+  // But Player::Player calls initializeBoard? No, it calls it in newRound.
+  // SmarterPlayer constructor calls Player constructor.
+  // Let's force initialization just in case.
+  p.newRound();
+
+  assert(p.checkShot(0, 0));
+  assert(p.checkShot(9, 9));
+
+  std::cout << "SmarterPlayer tests passed!" << std::endl;
+}
+
 int main() {
   testBoard();
   testAIContest();
+  testSmarterPlayer();
   std::cout << "All tests passed!" << std::endl;
   return 0;
 }
