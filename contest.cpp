@@ -15,8 +15,9 @@
 #include "Board.h"
 #include "Player.h"
 #include "conio.h"
+#include <memory>
 
-Player *getPlayer(int playerId, int boardSize);
+std::unique_ptr<Player> getPlayer(int playerId, int boardSize);
 void playMatch(int player1Id, int player2Id, bool showMoves);
 int comparePlayers(const void *a, const void *b);
 
@@ -36,13 +37,13 @@ string playerNames[NumPlayers] = {
     "Dumb Player",
 };
 
-Player *getPlayer(int playerId, int boardSize) {
+std::unique_ptr<Player> getPlayer(int playerId, int boardSize) {
   switch (playerId) {
   default:
   case 0:
-    return new SmarterPlayer(boardSize);
+    return std::make_unique<SmarterPlayer>(boardSize);
   case 1:
-    return new DumbPlayer(boardSize);
+    return std::make_unique<DumbPlayer>(boardSize);
     // NEW PLAYER CASE HERE
   }
 }
@@ -160,8 +161,8 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
          << player2Id << endl;
     return;
   }
-  Player *player1, *player2;
-  AIContest *game;
+  std::unique_ptr<Player> player1, player2;
+  std::unique_ptr<AIContest> game;
   int matchWins[2] = {0, 0};
   bool player1Won = false, player2Won = false;
   int player1Ties = 0, player2Ties = 0;
@@ -178,13 +179,15 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
 
     if (count == 0) {
       silent = false;
-      game = new AIContest(player1, playerNames[player1Id], player2,
-                           playerNames[player2Id], boardSize, silent);
+      game = std::make_unique<AIContest>(player1.get(), playerNames[player1Id],
+                                         player2.get(), playerNames[player2Id],
+                                         boardSize, silent);
       game->play(secondsPerMove, totalCountedMoves, player1Won, player2Won);
     } else {
       silent = true;
-      game = new AIContest(player1, playerNames[player1Id], player2,
-                           playerNames[player2Id], boardSize, silent);
+      game = std::make_unique<AIContest>(player1.get(), playerNames[player1Id],
+                                         player2.get(), playerNames[player2Id],
+                                         boardSize, silent);
       game->play(0, totalCountedMoves, player1Won, player2Won);
     }
     if ((player1Won && player2Won) || !(player1Won || player2Won)) {
@@ -205,10 +208,9 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
       statsShotsTaken[player2Id] += totalCountedMoves;
       statsGamesCounted[player2Id]++;
     }
-    delete game;
+    // game is automatically deleted when reassigned or out of scope
   }
-  delete player1;
-  delete player2;
+  // players are automatically deleted when out of scope
 
   cout << endl << "********************" << endl;
   // file deepcode ignore IntegerOverflow: Old school project, non-issue

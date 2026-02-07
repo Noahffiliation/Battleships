@@ -10,25 +10,16 @@
 #include <iostream>
 #include <unistd.h>
 
-
 // Set up the game for a contest between two players
-AIContest::AIContest(Player *player1, string player1Name, Player *player2,
-                     string player2Name, int boardSize, bool silent) {
-  // Set up player 1
-  this->player1 = player1;
-  this->player1Board = new Board(boardSize);
-  this->player1Name = player1Name;
-  this->player1Won = false;
-
-  // Set up player 2
-  this->player2 = player2;
-  this->player2Board = new Board(boardSize);
-  this->player2Name = player2Name;
-  this->player2Won = false;
-
-  // General
-  this->boardSize = boardSize;
-  this->silent = silent;
+AIContest::AIContest(Player *player1, const string &player1Name,
+                     Player *player2, const string &player2Name, int boardSize,
+                     bool silent)
+    : player1(player1), player2(player2),
+      player1Board(std::make_unique<Board>(boardSize)),
+      player2Board(std::make_unique<Board>(boardSize)),
+      player1Name(player1Name), player2Name(player2Name), boardSize(boardSize),
+      silent(silent), player1Won(false), player2Won(false),
+      numShips((boardSize - 2 > MAX_SHIPS) ? MAX_SHIPS : (boardSize - 2)) {
 
   // Ship stuff
   shipNames[0] = "Submaraine";
@@ -38,23 +29,15 @@ AIContest::AIContest(Player *player1, string player1Name, Player *player2,
   shipNames[4] = "Submarine 2";
   shipNames[5] = "Aircraft Carrier 2";
 
-  numShips = boardSize - 2;
-  if (numShips > MAX_SHIPS) {
-    numShips = MAX_SHIPS;
-  }
-
   for (int i = 0; i < numShips; i++) {
     shipLengths[i] = Random::get_int(3, MIN_SHIP_SIZE + 2);
   }
 }
 
-AIContest::~AIContest() {
-  delete this->player1Board;
-  delete this->player2Board;
-}
+AIContest::~AIContest() {}
 
 // Places the ships
-bool AIContest::placeShips(Player *player, Board *board) {
+bool AIContest::placeShips(Player *player, Board *board) const {
   for (int i = 0; i < numShips; i++) {
     Message loc = player->placeShip(shipLengths[i]);
     bool placedOk = board->placeShip(loc.getRow(), loc.getCol(), shipLengths[i],
@@ -71,9 +54,9 @@ bool AIContest::placeShips(Player *player, Board *board) {
 }
 
 // Show the player's boards with shot data
-void AIContest::showBoard(Board *board, bool ownerView, string playerName,
-                          bool fullRedraw, Side side, bool hLMostRecentShot,
-                          int hLRow, int hLCol) {
+void AIContest::showBoard(Board *board, bool ownerView,
+                          const string &playerName, bool fullRedraw, Side side,
+                          HighlightOptions highlightOptions) const {
   if (silent) {
     return;
   }
@@ -126,7 +109,8 @@ void AIContest::showBoard(Board *board, bool ownerView, string playerName,
       if (ch >= 'a' && ch <= 'k') {
         cout << setTextStyle(NEGATIVE_IMAGE) << ch << resetAll() << flush;
       } else {
-        if (hLMostRecentShot && hLRow == row && hLCol == col) {
+        if (highlightOptions.highlightRecent && highlightOptions.row == row &&
+            highlightOptions.col == col) {
           cout << setTextStyle(NEGATIVE_IMAGE) << ch
                << setTextStyle(NEGATIVE_IMAGE) << resetAll() << flush;
         } else {
@@ -172,8 +156,9 @@ void AIContest::updateAI(Player *player, Board *board, int hitRow, int hitCol) {
 }
 
 // Determine shot types against each player
-bool AIContest::processShot(string playerName, Player *player, Board *board,
-                            Side side, int row, int col, Player *otherPlayer) {
+bool AIContest::processShot(const string &playerName, Player *player,
+                            Board *board, Side side, int row, int col,
+                            Player *otherPlayer) {
   bool won = false;
   int resultsRow = 16;
   int shotColOffset = side == Right ? 1 : 50;
@@ -268,7 +253,7 @@ void AIContest::play(float secondsDelay, int &totalMoves, bool &player1Won,
   clearScreen();
 
   // Validate ship placements
-  if (!placeShips(player1, player1Board)) {
+  if (!placeShips(player1, player1Board.get())) {
     cout << endl;
     cout << player1Name << " placed ship in invalid location and forfeits game."
          << endl;
@@ -276,7 +261,7 @@ void AIContest::play(float secondsDelay, int &totalMoves, bool &player1Won,
     snooze(secondsDelay * 4);
     player2Won = true;
   }
-  if (!placeShips(player2, player2Board)) {
+  if (!placeShips(player2, player2Board.get())) {
     cout << endl;
     cout << player2Name << " placed ship in invalid location and forfeits game."
          << endl;
@@ -288,17 +273,17 @@ void AIContest::play(float secondsDelay, int &totalMoves, bool &player1Won,
   // Keep processing shots until a player wins or run out of moves
   while (!(player1Won || player2Won) && totalMoves < maxShots) {
     Message shot1 = player1->getMove();
-    player1Won = processShot(player1Name, player1, player2Board, Left,
+    player1Won = processShot(player1Name, player1, player2Board.get(), Left,
                              shot1.getRow(), shot1.getCol(), player2);
     Message shot2 = player2->getMove();
-    player2Won = processShot(player2Name, player2, player1Board, Right,
+    player2Won = processShot(player2Name, player2, player1Board.get(), Right,
                              shot2.getRow(), shot2.getCol(), player1);
 
     if (!silent) {
-      showBoard(player1Board, false, player1Name + "'s Board", false, Left,
-                true, shot2.getRow(), shot2.getCol());
-      showBoard(player2Board, false, player2Name + "'s Board", false, Right,
-                true, shot1.getRow(), shot1.getCol());
+      showBoard(player1Board.get(), false, player1Name + "'s Board", false,
+                Left, {true, shot2.getRow(), shot2.getCol()});
+      showBoard(player2Board.get(), false, player2Name + "'s Board", false,
+                Right, {true, shot1.getRow(), shot1.getCol()});
     }
 
     totalMoves++;
@@ -310,11 +295,13 @@ void AIContest::play(float secondsDelay, int &totalMoves, bool &player1Won,
   // Show final board results
   if (!silent) {
     clearScreen();
-    showBoard(player1Board, true, "Final status of " + player1Name + "'s board",
-              true, Left, false, -1, -1);
+    showBoard(player1Board.get(), true,
+              "Final status of " + player1Name + "'s board", true, Left,
+              {false, -1, -1});
     cout << endl;
-    showBoard(player2Board, true, "Final status of " + player2Name + "'s board",
-              true, Right, false, -1, -1);
+    showBoard(player2Board.get(), true,
+              "Final status of " + player2Name + "'s board", true, Right,
+              {false, -1, -1});
     cout << endl;
   }
 

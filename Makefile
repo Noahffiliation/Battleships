@@ -1,4 +1,4 @@
-CXXFLAGS = -g -Wall -Og -std=c++11
+CXXFLAGS = -g -Wall -Og -std=c++14
 CXX = g++
 
 # ADD NEW PLAYER.o HERE
