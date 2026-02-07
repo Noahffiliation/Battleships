@@ -4,22 +4,15 @@
  * Main driver for BattleShips implementations
  */
 
-#include <cctype>
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <unistd.h>
 
 #include "AIContest.h"
-#include "Board.h"
 #include "Player.h"
 #include "conio.h"
+#include <algorithm>
 #include <memory>
-
-std::unique_ptr<Player> getPlayer(int playerId, int boardSize);
-void playMatch(int player1Id, int player2Id, bool showMoves);
-int comparePlayers(const void *a, const void *b);
 
 using namespace std;
 using namespace conio;
@@ -32,10 +25,26 @@ using namespace conio;
  * UPDATE NEW PLAYER INFORMATION HERE
  */
 const int NumPlayers = 2;
-string playerNames[NumPlayers] = {
+const string playerNames[NumPlayers] = {
     "Smarter Player",
     "Dumb Player",
 };
+
+struct ContestState {
+  float secondsPerMove = 1;
+  int boardSize = 0;
+  int totalGames = 0;
+  int wins[NumPlayers][NumPlayers] = {{0}};
+  int playerIds[NumPlayers] = {0};
+  int lives[NumPlayers] = {0};
+  int winCount[NumPlayers] = {0};
+  int statsShotsTaken[NumPlayers] = {0};
+  int statsGamesCounted[NumPlayers] = {0};
+};
+
+std::unique_ptr<Player> getPlayer(int playerId, int boardSize);
+void playMatch(ContestState &state, int player1Id, int player2Id,
+               bool showMoves);
 
 std::unique_ptr<Player> getPlayer(int playerId, int boardSize) {
   switch (playerId) {
@@ -48,28 +57,18 @@ std::unique_ptr<Player> getPlayer(int playerId, int boardSize) {
   }
 }
 
-float secondsPerMove = 1;
-int boardSize;
-int totalGames = 0;
-int totalCountedMoves = 0;
-int wins[NumPlayers][NumPlayers];
-int playerIds[NumPlayers];
-int lives[NumPlayers];
-int winCount[NumPlayers];
-int statsShotsTaken[NumPlayers];
-int statsGamesCounted[NumPlayers];
-
 int main() {
+  ContestState state;
   // Adjust based on the number of players!
   // Initialize various win statistics
   for (int i = 0; i < NumPlayers; i++) {
-    statsShotsTaken[i] = 0;
-    statsGamesCounted[i] = 0;
-    winCount[i] = 0;
-    lives[i] = NumPlayers / 2;
-    playerIds[i] = i;
+    state.statsShotsTaken[i] = 0;
+    state.statsGamesCounted[i] = 0;
+    state.winCount[i] = 0;
+    state.lives[i] = NumPlayers / 2;
+    state.playerIds[i] = i;
     for (int j = 0; j < NumPlayers; j++) {
-      wins[i][j] = 0;
+      state.wins[i][j] = 0;
     }
   }
 
@@ -79,74 +78,98 @@ int main() {
   cout << "Welcome to the AI Bot contest." << endl << endl;
   cout << "What size board would you like? [Anything other than numbers 3-10 "
           "exits.] ";
-  cin >> boardSize;
+  cin >> state.boardSize;
   // If have invalid board size input (non-number, or 0-2, or > 10).
-  if (!cin || boardSize < 3 || boardSize > 10) {
+  if (!cin || state.boardSize < 3 || state.boardSize > 10) {
     cout << "Exiting" << endl;
     return 1;
   }
 
   // Find out how many times to test the AI.
   cout << "How many times should I test the game AI? ";
-  cin >> totalGames;
+  cin >> state.totalGames;
 
   cout << "The first game of each AI match is played at the specified speed,"
        << endl
        << "all subsequent games are done without visual display." << endl
        << "How many seconds per move? (E.g., 1, 0.5, 1.3) : ";
-  cin >> secondsPerMove;
+  cin >> state.secondsPerMove;
 
   // And now it's show time!
   int offset = 1;
   while (offset < NumPlayers / 2) {
     for (int player = 0; player + offset < NumPlayers; player += offset + 1) {
-      playMatch(player, player + offset, true);
+      playMatch(state, player, player + offset, true);
       usleep(3000000);
     }
     ++offset;
   }
   for (int player1Id = 0; player1Id < NumPlayers; player1Id++) {
     for (int player2Id = player1Id + 1; player2Id < NumPlayers; player2Id++) {
-      if (lives[player1Id] == 0 || lives[player2Id] == 0)
+      if (state.lives[player1Id] == 0 || state.lives[player2Id] == 0)
         continue;
 
-      playMatch(player1Id, player2Id, true);
+      playMatch(state, player1Id, player2Id, true);
       usleep(3000000); // Pause 3 seconds to let viewers see stats
     }
   }
   cout << endl << endl;
 
   // Now calculate contest results
-  qsort(playerIds, NumPlayers, sizeof(int), comparePlayers);
+  std::sort(state.playerIds, state.playerIds + NumPlayers,
+            [&state](int p1, int p2) {
+              if (state.lives[p1] > state.lives[p2])
+                return true;
+              else if (state.lives[p1] < state.lives[p2])
+                return false;
+              else {
+                if (state.winCount[p1] > state.winCount[p2])
+                  return true;
+                else if (state.winCount[p1] < state.winCount[p2])
+                  return false;
+                else
+                  return false; // Return false for equal to maintain strict
+                                // weak ordering
+              }
+            });
 
   // Add up the total wins per player
   for (int i = 0; i < NumPlayers; i++) {
     for (int j = 0; j < NumPlayers; j++)
-      winCount[i] += wins[i][j];
+      state.winCount[i] += state.wins[i][j];
   }
 
   int tiesInARow = 0;
   for (int i = 0; i < NumPlayers; ++i) {
     // If one of two or more that are tied for first place, switch on BOLD
-    if (lives[playerIds[i]] == lives[playerIds[0]] &&
-        winCount[playerIds[i]] == winCount[playerIds[0]])
+    if (state.lives[state.playerIds[i]] == state.lives[state.playerIds[0]] &&
+        state.winCount[state.playerIds[i]] ==
+            state.winCount[state.playerIds[0]])
       cout << setTextStyle(BOLD);
-    if (i > 0 && lives[playerIds[i]] == lives[playerIds[i - 1]] &&
-        winCount[playerIds[i]] == winCount[playerIds[i - 1]])
+    if (i > 0 &&
+        state.lives[state.playerIds[i]] ==
+            state.lives[state.playerIds[i - 1]] &&
+        state.winCount[state.playerIds[i]] ==
+            state.winCount[state.playerIds[i - 1]])
       ++tiesInARow;
     else
       tiesInARow = 0;
 
-    cout << setw(2) << i + 1 - tiesInARow << ": " << playerNames[playerIds[i]]
-         << " (Lives=" << lives[playerIds[i]]
-         << ", Wins=" << winCount[playerIds[i]] << ")";
-    if ((i < NumPlayers - 1 && lives[playerIds[1]] == lives[playerIds[1 + 1]] &&
-         winCount[playerIds[i]] == winCount[playerIds[i + 1]]))
+    cout << setw(2) << i + 1 - tiesInARow << ": "
+         << playerNames[state.playerIds[i]]
+         << " (Lives=" << state.lives[state.playerIds[i]]
+         << ", Wins=" << state.winCount[state.playerIds[i]] << ")";
+    if ((i < NumPlayers - 1 &&
+         state.lives[state.playerIds[i]] ==
+             state.lives[state.playerIds[i + 1]] &&
+         state.winCount[state.playerIds[i]] ==
+             state.winCount[state.playerIds[i + 1]]))
       cout << " -- tied ";
-    else if (tiesInARow > 0 ||
-             (i < NumPlayers - 1 &&
-              lives[playerIds[i]] == lives[playerIds[i - 1]] &&
-              winCount[playerIds[i]] == winCount[playerIds[i - 1]]))
+    else if (tiesInARow > 0 || (i < NumPlayers - 1 &&
+                                state.lives[state.playerIds[i]] ==
+                                    state.lives[state.playerIds[i - 1]] &&
+                                state.winCount[state.playerIds[i]] ==
+                                    state.winCount[state.playerIds[i - 1]]))
       cout << " -- tied ";
     cout << resetAll() << endl;
   }
@@ -154,7 +177,8 @@ int main() {
   return 0;
 }
 
-void playMatch(int player1Id, int player2Id, bool showMoves) {
+void playMatch(ContestState &state, int player1Id, int player2Id,
+               bool showMoves) {
   if (player1Id < 0 || player1Id >= NumPlayers || player2Id < 0 ||
       player2Id >= NumPlayers) {
     cerr << "Invalid player IDs passed to playMatch: " << player1Id << ", "
@@ -166,12 +190,13 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
   int matchWins[2] = {0, 0};
   bool player1Won = false, player2Won = false;
   int player1Ties = 0, player2Ties = 0;
+  int totalCountedMoves = 0;
 
-  player1 = getPlayer(player1Id, boardSize);
-  player2 = getPlayer(player2Id, boardSize);
+  player1 = getPlayer(player1Id, state.boardSize);
+  player2 = getPlayer(player2Id, state.boardSize);
 
   bool silent = true;
-  for (int count = 0; count < totalGames; count++) {
+  for (int count = 0; count < state.totalGames; count++) {
     player1Won = false;
     player2Won = false;
     player1->newRound();
@@ -181,32 +206,33 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
       silent = false;
       game = std::make_unique<AIContest>(player1.get(), playerNames[player1Id],
                                          player2.get(), playerNames[player2Id],
-                                         boardSize, silent);
-      game->play(secondsPerMove, totalCountedMoves, player1Won, player2Won);
+                                         state.boardSize, silent);
+      game->play(state.secondsPerMove, totalCountedMoves, player1Won,
+                 player2Won);
     } else {
       silent = true;
       game = std::make_unique<AIContest>(player1.get(), playerNames[player1Id],
                                          player2.get(), playerNames[player2Id],
-                                         boardSize, silent);
+                                         state.boardSize, silent);
       game->play(0, totalCountedMoves, player1Won, player2Won);
     }
     if ((player1Won && player2Won) || !(player1Won || player2Won)) {
       player1Ties++;
       player2Ties++;
-      statsShotsTaken[player1Id] += totalCountedMoves;
-      statsGamesCounted[player1Id]++;
-      statsShotsTaken[player2Id] += totalCountedMoves;
-      statsGamesCounted[player2Id]++;
+      state.statsShotsTaken[player1Id] += totalCountedMoves;
+      state.statsGamesCounted[player1Id]++;
+      state.statsShotsTaken[player2Id] += totalCountedMoves;
+      state.statsGamesCounted[player2Id]++;
     } else if (player1Won) {
       matchWins[0]++;
-      wins[player1Id][player2Id]++;
-      statsShotsTaken[player1Id] += totalCountedMoves;
-      statsGamesCounted[player1Id]++;
+      state.wins[player1Id][player2Id]++;
+      state.statsShotsTaken[player1Id] += totalCountedMoves;
+      state.statsGamesCounted[player1Id]++;
     } else if (player2Won) {
       matchWins[1]++;
-      wins[player2Id][player1Id]++;
-      statsShotsTaken[player2Id] += totalCountedMoves;
-      statsGamesCounted[player2Id]++;
+      state.wins[player2Id][player1Id]++;
+      state.statsShotsTaken[player2Id] += totalCountedMoves;
+      state.statsGamesCounted[player2Id]++;
     }
     // game is automatically deleted when reassigned or out of scope
   }
@@ -216,70 +242,54 @@ void playMatch(int player1Id, int player2Id, bool showMoves) {
   // file deepcode ignore IntegerOverflow: Old school project, non-issue
   cout << playerNames[player1Id] << ": " << setTextStyle(NEGATIVE_IMAGE)
        << "wins=" << matchWins[0] << resetAll()
-       << " losses=" << totalGames - matchWins[0] - player1Ties
+       << " losses=" << state.totalGames - matchWins[0] - player1Ties
        << " ties=" << player1Ties << " (cumulative avg. shots/game = "
-       << (statsGamesCounted[player1Id] == 0
+       << (state.statsGamesCounted[player1Id] == 0
                ? 0.0
-               : (float)statsShotsTaken[player1Id] /
-                     (float)statsGamesCounted[player1Id])
+               : (float)state.statsShotsTaken[player1Id] /
+                     (float)state.statsGamesCounted[player1Id])
        << ")" << endl;
   cout << playerNames[player2Id] << ": " << setTextStyle(NEGATIVE_IMAGE)
        << "wins=" << matchWins[1] << resetAll()
-       << " losses=" << totalGames - matchWins[1] - player2Ties
+       << " losses=" << state.totalGames - matchWins[1] - player2Ties
        << " ties=" << player2Ties << " (cumulative avg. shots/game = "
-       << (statsGamesCounted[player2Id] == 0
+       << (state.statsGamesCounted[player2Id] == 0
                ? 0.0
-               : (float)statsShotsTaken[player2Id] /
-                     (float)statsGamesCounted[player2Id])
+               : (float)state.statsShotsTaken[player2Id] /
+                     (float)state.statsGamesCounted[player2Id])
        << ")" << endl;
   cout << "********************" << endl;
 
   cout << setTextStyle(NEGATIVE_IMAGE);
-  if (wins[player1Id][player2Id] > wins[player2Id][player1Id]) {
+  if (state.wins[player1Id][player2Id] > state.wins[player2Id][player1Id]) {
     // Player 2 lost the match
-    lives[player2Id]--;
+    state.lives[player2Id]--;
     cout << playerNames[player2Id] << " lost one life.";
-    if (lives[player2Id] == 0) {
+    if (state.lives[player2Id] == 0) {
       cout << fgColor(RED);
     }
-    cout << " Lives left: " << lives[player2Id] << resetAll() << endl;
-  } else if (wins[player1Id][player2Id] < wins[player2Id][player1Id]) {
+    cout << " Lives left: " << state.lives[player2Id] << resetAll() << endl;
+  } else if (state.wins[player1Id][player2Id] <
+             state.wins[player2Id][player1Id]) {
     // Player 1 lost the match
-    lives[player1Id]--;
+    state.lives[player1Id]--;
     cout << playerNames[player1Id] << " lost one life.";
-    if (lives[player1Id] == 0) {
+    if (state.lives[player1Id] == 0) {
       cout << fgColor(RED);
     }
-    cout << " Lives left: " << lives[player1Id] << resetAll() << endl;
+    cout << " Lives left: " << state.lives[player1Id] << resetAll() << endl;
   } else {
     // Tied -- both players lose a life: the only time this likely happens is
     // when both players are unable to do anythig worthwhile, so loosing a life
     // is appropriate.
-    lives[player1Id]--;
-    lives[player2Id]--;
+    state.lives[player1Id]--;
+    state.lives[player2Id]--;
     cout << setTextStyle(NEGATIVE_IMAGE) << "A tie. Both players lose a life."
          << endl;
-    cout << playerNames[player2Id] << " Lives left: " << lives[player2Id]
+    cout << playerNames[player2Id] << " Lives left: " << state.lives[player2Id]
          << endl;
-    cout << playerNames[player1Id] << " Lives left: " << lives[player1Id]
+    cout << playerNames[player1Id] << " Lives left: " << state.lives[player1Id]
          << endl;
   }
   cout << resetAll() << "********************" << endl;
-}
-
-int comparePlayers(const void *a, const void *b) {
-  int p1 = *(int *)a;
-  int p2 = *(int *)b;
-  if (lives[p1] > lives[p2])
-    return -1;
-  else if (lives[p1] < lives[p2])
-    return 1;
-  else {
-    if (winCount[p1] > winCount[p2])
-      return -1;
-    else if (winCount[p1] < winCount[p2])
-      return 1;
-    else
-      return 0;
-  }
 }
