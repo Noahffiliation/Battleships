@@ -1,8 +1,19 @@
-CXXFLAGS = -g -Wall -Og -std=c++14
+################################################
+# Two changes are needed.
+# (1) Add your player's .o file to CONTESTOBJECTS
+# (2) Add your player's dependencies right after SmarterPlayer's.
+################################################
+
+CXXFLAGS = -g -Wall -Og -std=c++11
 CXX = g++
 
-# ADD NEW PLAYER.o HERE
-CONTESTOBJECTS = AIContest.o Board.o Message.o Player.o conio.o contest.o SmarterPlayer.o DumbPlayer.o
+
+################################################
+# Change 1:
+# Add your player on the line after GamblerPlayer
+################################################
+CONTESTOBJECTS = AIContest.o BoardV3.o Message.o PlayerV2.o conio.o contest.o \
+	SmarterPlayer.o DumbPlayerV2.o CleanPlayerV2.o GamblerPlayerV2.o LearningGambler.o SemiSmartPlayerV2.o
 
 BONUSOBJECTS = CleanPlayerV2.o GamblerPlayerV2.o LearningGambler.o SemiSmartPlayerV2.o
 
@@ -49,17 +60,30 @@ Message.cpp: Message.h defines.h
 conio.o: conio.cpp
 conio.cpp: conio.h
 
-AIContest.o: AIContest.cpp Random.h
-AIContest.cpp: AIContest.h Message.h defines.h Random.h
+AIContest.o: AIContest.cpp
+AIContest.cpp: AIContest.h Message.h defines.h
 
-SmarterPlayer.o: SmarterPlayer.cpp Message.cpp Random.h
-SmarterPlayer.cpp: SmarterPlayer.h defines.h Player.h conio.cpp Random.h
+# Players here
+SmarterPlayer.o: SmarterPlayer.cpp Message.cpp
+SmarterPlayer.cpp: SmarterPlayer.h defines.h PlayerV2.h conio.cpp
 
-DumbPlayer.o: DumbPlayer.cpp Message.cpp
-DumbPlayer.cpp: DumbPlayer.h defines.h Player.h conio.cpp
+DumbPlayerV2.o: DumbPlayerV2.cpp Message.cpp
+DumbPlayerV2.cpp: DumbPlayerV2.h defines.h PlayerV2.h conio.cpp
+################################################
+# Change 2:
+# Add your player dependency information below
+################################################
 
-Board.o: Board.cpp
-Board.cpp: Board.h
 
-# ADD NEW PLAYER DEPENDENCIES HERE
+# CleanPlayerV2.o and other provided binaries are only available as a linkable Linux binary, not as source code.
+CleanPlayerV2.o:
+	tar -xvf binaries.tar CleanPlayerV2.o
+GamblerPlayerV2.o:
+	tar -xvf binaries.tar GamblerPlayerV2.o
+LearningGambler.o:
+	tar -xvf binaries.tar LearningGambler.o
+SemiSmartPlayerV2.o:
+	tar -xvf binaries.tar SemiSmartPlayerV2.o
+BoardV3.o:
+	tar -xvf binaries.tar BoardV3.o
 

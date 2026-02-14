@@ -1,29 +1,43 @@
-#ifndef SmarterPlayer_H
+/**
+ * @author Stefan Brandle, Jonathan Geisler
+ * @date September, 2004
+ *
+ * Please type in your name[s] here: Noah Lindsey, Michael Wen
+ *
+ */
+
+#ifndef SmarterPlayer_H		// Double inclusion protection
 #define SmarterPlayer_H
 
 #include "Message.h"
 #include "Player.h"
 #include "defines.h"
-#include <utility>
 
-class SmarterPlayer : public Player {
-public:
-  SmarterPlayer(int boardSize);
-  ~SmarterPlayer() = default;
-  void newRound();
-  int getNeighbors(int row, int col);
-  bool checkShot(int row, int col);
-  bool validShot(int row, int col);
-  Message placeShip(int length);
-  Message getMove();
-  std::pair<int, int> searchAndDestroy(int lastRow, int lastCol);
+// SmarterPlayer inherits from/extends PlayerV2
 
-private:
-  void initializeBoard();
-  bool canPlaceShip(int length, Direction dir, int row, int col);
-  void placeOnBoard(int length, Direction dir, int row, int col);
-  char shipBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-  int shotMatrix[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+class SmarterPlayer: public PlayerV2 {
+    public:
+	SmarterPlayer( int boardSize );
+	~SmarterPlayer();
+	void newRound();
+        int getNeighbors(int row, int col);
+        bool checkShot(int row, int col);
+        bool validShot(int row, int col);
+	Message placeShip(int length);
+	Message getMove();
+        int* searchAndDestroy(int lastRow, int lastCol);
+	void update(Message msg);
+
+    private:
+	void initializeBoard();
+        int lastRow;
+        int lastCol;
+	int numShipsPlaced;
+        char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+	char shipBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+	int shotMatrix[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+	bool canPlaceShip(int length, Direction dir, int row, int col);
+	void placeOnBoard(int length, Direction dir, int row, int col);
 };
 
 #endif
