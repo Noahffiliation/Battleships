@@ -9,8 +9,10 @@
 #ifndef SmarterPlayer_H		// Double inclusion protection
 #define SmarterPlayer_H
 
+using namespace std;
+
+#include "PlayerV2.h"
 #include "Message.h"
-#include "Player.h"
 #include "defines.h"
 
 // SmarterPlayer inherits from/extends PlayerV2
@@ -27,7 +29,7 @@ class SmarterPlayer: public PlayerV2 {
 	Message getMove();
         int* searchAndDestroy(int lastRow, int lastCol);
 	void update(Message msg);
-
+	
     private:
 	void initializeBoard();
         int lastRow;

@@ -1,6 +1,18 @@
-#include "SmarterPlayer.h"
-#include "Random.h"
+/**
+ * @brief SmarterPlayer AI for battleships
+ * @file SmarterPlayer.cpp
+ * @author Stefan Brandle, Jonathan Geisler
+ * @author Noah Lindsey, Michael Wen
+ * @date September, 2004 Updated 2015 for multi-round play.
+ *
+ * This Battleships AI is very simple and does nothing beyond playing
+ * a legal game. However, that makes it a good starting point for writing
+ * a more sophisticated AI.
+ */
+
+#include <iostream>
 #include <cstdio>
+#include <stdlib.h>
 #include <cstdlib>
 #include <ctime>
 #include "conio.h"
@@ -14,7 +26,7 @@ using namespace conio;
  *
  * The constructor runs when the AI is instantiated (the object gets created)
  * and is responsible for initializing everything that needs to be initialized
- * before any of the rounds happen. The constructor does not get called
+ * before any of the rounds happen. The constructor does not get called 
  * before rounds; newRound() gets called before every round.
  */
 SmarterPlayer::SmarterPlayer( int boardSize )
@@ -57,7 +69,7 @@ int SmarterPlayer::getNeighbors(int row, int col){
     if (validShot(row+1, col-1) && (shipBoard[row+1][col-1] != WATER)) sum++;
     if (validShot(row-1, col-1) && (shipBoard[row-1][col-1] != WATER)) sum++;
     if (validShot(row+1, col+1) && (shipBoard[row+1][col+1] != WATER)) sum++;
-
+    
     return sum;
 }
 
@@ -78,33 +90,40 @@ bool SmarterPlayer::canPlaceShip(int shipSize, Direction dir, int row, int col) 
     }
 }
 
+/**
+ * @brief Places ships on the board
+ * @param shipSize This size of the ship
+ * @param dir Direction of the ship
+ * @param row Row location on board
+ * @param col Column location on board
+ */
 void SmarterPlayer::placeOnBoard(int length, Direction dir, int row, int col) {
     if (dir == Horizontal) for(int i = 0; i < length; ++i) shipBoard[row][col+i] = SHIP;
     else for(int i = 0; i < length; ++i) shipBoard[row+i][col] = SHIP;
 }
 
+/**
+ * @brief Checks location for a valid shot
+ * @param row Row location on the board
+ * @param col Column location on the board
+ */
 bool SmarterPlayer::checkShot(int row, int col) {
-  if (row < 0 || row >= boardSize || row >= MAX_BOARD_SIZE || col < 0 ||
-      col >= boardSize || col >= MAX_BOARD_SIZE)
-    return false;
-  switch (board[row][col]) {
-  case DUPLICATE_SHOT:
-  case HIT:
-  case SUNK:
-  case MISS:
-    return false;
-  }
-  return true;
+    if (row < 0 || row >= boardSize || col < 0 || col >= boardSize) return false;
+    switch (board[row][col]) {
+        case DUPLICATE_SHOT:
+        case HIT:
+        case KILL:
+        case MISS:
+            return false;
+    }
+    return true;
 }
 
 bool SmarterPlayer::validShot(int row, int col) {
-  if (row < 0 || row >= boardSize)
-    return false;
-  if (col < 0 || col >= boardSize)
-    return false;
-  if (!checkShot(row, col))
-    return false;
-  return true;
+    if (row < 0 || row >= boardSize) return false;
+    if (col < 0 || col >= boardSize) return false;
+    if (!checkShot(row, col)) return false;
+    return true;
 }
 
 /**
@@ -170,10 +189,10 @@ int* SmarterPlayer::searchAndDestroy(int row, int col) {
 
 /**
  * @brief Specifies the AI's shot choice and returns the information to the caller.
- * @return Message The most important parts of the returned message are
- * the row and column values.
+ * @return Message The most important parts of the returned message are 
+ * the row and column values. 
  *
- * See the Message class documentation for more information on the
+ * See the Message class documentation for more information on the 
  * Message constructor.
  */
 Message SmarterPlayer::getMove() {
@@ -190,9 +209,9 @@ Message SmarterPlayer::getMove() {
 	}
     }
 
-  int row = 0;
-  int col = 0;
-  int startCol = 0;
+    int row = 0;
+    int col = 0;
+    int startCol = 0;
 
     while (row < boardSize && col < boardSize) {
 	if (board[row][col] == WATER) {
@@ -220,26 +239,48 @@ Message SmarterPlayer::getMove() {
         }
     }
 
-  Message result(SHOT, -1, -1, "Bang", None, 1);
-  return result;
-}
+    Message result(SHOT, -1, -1, "Bang", None, 1);
+    return result;
+}    
 
+/**
+ * @brief Tells the AI that a new round is beginning.
+ * The AI show reinitialize any intra-round data structures.
+ */
 void SmarterPlayer::newRound() {
-  Player::newRound();
-  this->lastRow = 0;
-  this->lastCol = 0;
+    /* DumbPlayer is too simple to do any inter-round learning. Smarter players 
+     * reinitialize any round-specific data structures here.
+     */
+    this->lastRow = 0;
+    this->lastCol = 0;
+    this->numShipsPlaced = 0;
+    this->initializeBoard();
 }
 
+/**
+ * @brief Gets the AI's ship placement choice. This is then returned to the caller.
+ * @param length The length of the ship to be placed.
+ * @return Message The most important parts of the returned message are 
+ * the direction, row, and column values. 
+ *
+ * The parameters returned via the message are:
+ * 1. the operation: must be PLACE_SHIP 
+ * 2. ship top row value
+ * 3. ship top col value
+ * 4. a string for the ship name
+ * 5. direction Horizontal/Vertical (see defines.h)
+ * 6. ship length (should match the length passed to placeShip)
+ */
 Message SmarterPlayer::placeShip(int length) {
     char shipName[10];
     // Create ship names each time called: Ship0, Ship1, Ship2, ...
     snprintf(shipName, sizeof shipName, "Ship%d", numShipsPlaced);
-
+    
     while (true) { //random ship placement
 	int row;
         int col;
 	Direction dir = Direction(rand() % 2 + 1);
-
+	
 	if (dir == Horizontal) {
 	    row = rand() % boardSize;
 	    col = rand() % ((boardSize - length) + 1);

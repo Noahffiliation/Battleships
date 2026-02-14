@@ -1,50 +1,51 @@
 /**
- * @author Noah Lindsey
- * @date September 2019
+ * Message.h: Defines a primitive message class.
+ * Authors:   Stefan Brandle and Jonathan Geisler
+ * Date:      December 2004
  */
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
-
 #include <string>
-
 #include "defines.h"
 
 using namespace std;
 
+#ifndef MESSAGE_H		// Double inclusion protection
+#define MESSAGE_H
+
 class Message {
     public:
-        Message(char messageType);
-        Message(char messageType, int row, int col, string str);
-        Message(char messageType, int row, int col, string str, Direction direction, int length);
+	Message( char messageType );              // Constructors
+	Message( char messageType, int row, int col, string str );
+	Message( char messageType, int row, int col, string str, Direction direction, int length );
 
-        void setMessage(char messageType, int row, int col, string str, Direction dir, int length);
+	// General set function
+	void setMessage( char messageType, int row, int col, string str, Direction dir, int length );
 
-        void setMessageType(char messageType);
-        char getMessageType();
+	void setMessageType( char messageType );  // set/get message type functions
+	char getMessageType( );
 
-        void setRow(int row);
-        int getRow();
+	void setRow( int row );                   // set/get row functions
+	int getRow( );
 
-        void setCol(int col);
-        int getCol();
+	void setCol( int col );                   // set/get column functions
+	int getCol( );
 
-        void setString(string str);
-        string getString();
+	void setString( string str );             // set/get string functions
+	string getString( );
 
-        void setDirection(Direction dir);
-        Direction getDirection();
+	void setDirection( Direction dir );       // set/get direction functions
+	Direction getDirection( );
 
-        void setLength(int length);
-        int getLength();
+	void setLength( int length );       // set/get length functions
+	int getLength( );
 
     private:
-        char messageType;
+        char messageType;                         // Fields
         int row;
         int col;
-        int length;
+	int length;
         string str;
-        Direction dir;
+	Direction dir;
 };
 
 #endif

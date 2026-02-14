@@ -1,66 +1,59 @@
 /**
- * @author Noah Lindsey
- * @date September 2019
- * Main diver for Battleships implementation
+ * @author Stefan Brandle and Jonathan Geisler
+ * @date August, 2004
+ * Main driver for BattleShipsV1 implementations.
+ * Please type in your name[s] below:
+ *
+ *
  */
 
 #ifndef AICONTEST_H
 #define AICONTEST_H
 
-#include <iomanip>
-#include <iostream>
-#include <unistd.h>
-
-#include "Board.h"
+// BattleShips project specific includes.
 #include "Message.h"
-#include "Player.h"
-#include "conio.h"
-#include "defines.h"
-#include <memory>
+#include "BoardV3.h"
+#include "PlayerV2.h"
 
 using namespace std;
-using namespace conio;
 
 class AIContest {
-public:
-  AIContest(Player *player1, const string &player1Name, Player *player2,
-            const string &player2Name, int boardSize, bool silent);
-  ~AIContest() = default;
-  void play(float secondsDelay, int &totalMoves, bool &player1Won,
-            bool &player2Won);
+  public:
+    AIContest( PlayerV2* player1, string player1Name,
+               PlayerV2* player2, string player2Name,
+	       int boardSize, bool silent );
+    ~AIContest();
+    void play( float secondsDelay, int& totalMoves, bool& player1Won, bool& player2Won );
 
-private:
-  enum Side { Left = 1, Right = 2 };
-  bool placeShips(Player *player, Board *board) const;
-  struct HighlightOptions {
-    bool highlightRecent;
-    int row;
-    int col;
-  };
-  void showBoard(Board *board, bool ownerVIew, const string &playerName,
-                 bool fullRedraw, Side side,
-                 HighlightOptions highlightOptions) const;
-  void clearScreen();
-  void updateAI(Player *player, Board *board, int hitRow, int hitCol);
-  void snooze(float seconds);
-  bool processShot(const string &playerName, Player *player, Board *board,
-                   Side side, int row, int col, Player *otherPlayer);
+  private:
+    enum Side { Left=1, Right=2 };
+    //bool placeShips( PlayerV2* player, BoardV3* board, BoardV3* testingBoard );
+    bool placeShips( PlayerV2* player, BoardV3* board);
+    void showBoard(BoardV3* board, bool ownerView, string playerName,
+                   bool fullRedraw, Side side, bool hLMostRecentShot, int hLRow, int hLCol );
+    void clearScreen();
+    void updateAI(PlayerV2 *player, BoardV3 *board, int hitRow, int hitCol);
+    void snooze(float seconds);
+    bool processShot(string playerName, PlayerV2 *player, BoardV3 *board, Side side, int row, int col, PlayerV2* otherPlayer);
 
-  Player *player1;
-  Player *player2;
-  std::unique_ptr<Board> player1Board;
-  std::unique_ptr<Board> player2Board;
-  string player1Name;
-  string player2Name;
-  int boardSize;
-  bool silent;
-  bool player1Won;
-  bool player2Won;
-  int NumShips;
-  static const int MAX_SHIPS = 6;
-  string shipNames[MAX_SHIPS];
-  int shipLengths[MAX_SHIPS];
-  int numShips;
+    // Data
+    PlayerV2 *player1;
+    PlayerV2 *player2;
+    BoardV3 *player1Board;
+    //BoardV3 *player1testingBoard;
+    BoardV3 *player2Board;
+    //BoardV3 *player2testingBoard;
+    string player1Name;
+    string player2Name;
+    int boardSize;
+    bool silent;
+    bool player1Won;
+    bool player2Won;
+    int NumShips;
+    static const int MAX_SHIPS = 6;
+    string shipNames[MAX_SHIPS];
+    int shipLengths[MAX_SHIPS];
+    int numShips;
 };
 
 #endif

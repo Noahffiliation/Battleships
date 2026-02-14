@@ -1,8 +1,7 @@
 /**
  * @author Stefan Brandle and Jonathan Geisler
  * @date August, 2004
- * Main driver for BattleShipsV3 implementations.
- * Please type in your name[s] below:
+ * Main driver for BattleShipsV3 testing.
  *
  *
  */
@@ -24,10 +23,12 @@
 
 // Include your player here
 //	Professor's contestants
-#include "SmarterPlayer.h"
+#include "DumbPlayerV2.h"
 #include "CleanPlayerV2.h"
 #include "GamblerPlayerV2.h"
-#include "DumbPlayerV2.h"
+
+// Include your player directly below
+
 
 PlayerV2* getPlayer( int playerId, int boardSize );
 void playMatch( int player1Id, int player2Id, bool showMoves );
@@ -40,7 +41,7 @@ float secondsPerMove = 1;
 int boardSize;	// BoardSize
 int totalGames = 0;
 int totalCountedMoves = 0;
-const int NumPlayers = 4;
+const int NumPlayers = 3;
 
 int wins[NumPlayers][NumPlayers];
 int playerIds[NumPlayers];
@@ -49,12 +50,10 @@ int winCount[NumPlayers];
 int statsShotsTaken[NumPlayers];
 int statsGamesCounted[NumPlayers];
 string playerNames[NumPlayers] = { 
-    "Smarter Player",
-    "Gambler Player",
-    "Clean Player",
     "Dumb Player",
+    "Clean Player",
+    "Gambler Player",
 };
-
 
 int main() {
     //bool silent = false;
@@ -272,10 +271,9 @@ PlayerV2* getPlayer( int playerId, int boardSize ) {
     switch( playerId ) {
 	// Professor provided
 	default:
-	case 0: return new SmarterPlayer( boardSize );
-	case 1: return new GamblerPlayerV2( boardSize );
-	case 2: return new CleanPlayerV2( boardSize );
-	case 3: return new DumbPlayerV2( boardSize);
+	case 0: return new DumbPlayerV2( boardSize );
+	case 1: return new CleanPlayerV2( boardSize );
+	case 2: return new GamblerPlayerV2( boardSize );
     }
 }
 
